@@ -15,9 +15,23 @@ require('dotenv').config();
 
 
 const createUser = async (req, res) => {
-    const { FirstName, LastName, Age, ContactNumber, Email, Course, Address } = req.body;
+    const { FirstName, LastName, Category, Age, ContactNumber, Email, Course, Address } = req.body;
 
     try {
+
+        const allowedCategories = ['Student', 'Employee'];
+        if (!allowedCategories.includes(Category)) {
+            return res.status(400).json({ error: 'Invalid category selected' });
+        }
+
+        const allowedCourses = ['MERN Stack', 'Python', 'Flutter', 'Digital Marketing'];
+        if (!allowedCourses.includes(Course)) {
+            return res.status(400).json({ error: 'Invalid course selected' });
+        }
+
+
+
+
         // Generate random password
         const Password = generatePassword();
 
@@ -29,6 +43,7 @@ const createUser = async (req, res) => {
         const employeeDetails = await userModel.create({
             FirstName,
             LastName,
+            Category,
             Age,
             ContactNumber,
             Email,
@@ -36,6 +51,10 @@ const createUser = async (req, res) => {
             Address,
             Password: hashedPassword
         });
+
+
+        console.log("EMAIL_USER:", process.env.EMAIL_USER);
+        console.log("EMAIL_PASS length:", process.env.EMAIL_PASS.length);
 
         // Send email with password
         const mailOptions = {
@@ -165,32 +184,32 @@ const profile = async (req, res) => {
 
 
 const updateprofile = async (req, res) => {
-  try {
-    console.log("🔥 Received body:", req.body);
-    console.log("🆔 ID param:", req.params.id);
+    try {
+        console.log("🔥 Received body:", req.body);
+        console.log("🆔 ID param:", req.params.id);
 
-    const { FirstName, LastName, Age, ContactNumber, Email, Designation, Address } = req.body;
-    const _id = req.params.id;
+        const { FirstName, LastName, Category, Age, ContactNumber, Email, Course, Address } = req.body;
+        const _id = req.params.id;
 
-    if (!_id) {
-      return res.status(400).json({ error: "User ID is required" });
+        if (!_id) {
+            return res.status(400).json({ error: "User ID is required" });
+        }
+
+        const empupdate = await userModel.findByIdAndUpdate(
+            _id,
+            { FirstName, LastName, Age, ContactNumber, Email, Designation, Address },
+            { new: true }
+        );
+
+        if (!empupdate) {
+            return res.status(404).json({ error: "Employee not found" });
+        }
+
+        res.json(empupdate);
+    } catch (error) {
+        console.error("❌ Error in updateprofile:", error);
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
-
-    const empupdate = await userModel.findByIdAndUpdate(
-      _id,
-      { FirstName, LastName, Age, ContactNumber, Email, Designation, Address },
-      { new: true }
-    );
-
-    if (!empupdate) {
-      return res.status(404).json({ error: "Employee not found" });
-    }
-
-    res.json(empupdate);
-  } catch (error) {
-    console.error("❌ Error in updateprofile:", error);
-    res.status(500).json({ error: "Internal Server Error", message: error.message });
-  }
 };
 
 
