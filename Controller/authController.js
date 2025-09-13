@@ -15,14 +15,14 @@ require('dotenv').config();
 
 
 const createUser = async (req, res) => {
-    const { FirstName, LastName, Category, Age, ContactNumber, Email, Course, Address } = req.body;
+    const { Fullname, Guardian, Address, ContactNumber, GuardianNumber, DOB, Aadhar, PAN, BloodGroup, JoiningDate, Email, Course, Password, EmergencyContactName, EmergencyNumber, Relationship } = req.body;
 
     try {
 
-        const allowedCategories = ['Student', 'Employee'];
-        if (!allowedCategories.includes(Category)) {
-            return res.status(400).json({ error: 'Invalid category selected' });
-        }
+        // const allowedCategories = ['Student', 'Employee'];
+        // if (!allowedCategories.includes(Category)) {
+        //     return res.status(400).json({ error: 'Invalid category selected' });
+        // }
 
         const allowedCourses = ['MERN Stack', 'Python', 'Flutter', 'Digital Marketing'];
         if (!allowedCourses.includes(Course)) {
@@ -41,15 +41,21 @@ const createUser = async (req, res) => {
 
         // Create user in database
         const employeeDetails = await userModel.create({
-            FirstName,
-            LastName,
-            Category,
-            Age,
-            ContactNumber,
-            Email,
-            Course,
+            Fullname,
+            Guardian,
             Address,
-            Password: hashedPassword
+            ContactNumber,
+            GuardianNumber,
+            DOB,
+            Aadhar,
+            PAN,
+            BloodGroup,
+            JoiningDate,
+            Course,
+            Password: hashedPassword,
+            EmergencyContactName,
+            EmergencyNumber,
+            Relationship,
         });
 
 
@@ -98,8 +104,7 @@ const createUser = async (req, res) => {
                 message: "User created successfully and credentials sent to email",
                 data: {
                     id: employeeDetails._id,
-                    FirstName: employeeDetails.FirstName,
-                    LastName: employeeDetails.LastName,
+                    Fullname: employeeDetails.Fullname,
                     Email: employeeDetails.Email
                 }
             });
@@ -110,8 +115,7 @@ const createUser = async (req, res) => {
                 message: "User created successfully but email could not be sent",
                 data: {
                     id: employeeDetails._id,
-                    FirstName: employeeDetails.FirstName,
-                    LastName: employeeDetails.LastName,
+                    Fullname: employeeDetails.Fullname,
                     Email: employeeDetails.Email
                 },
                 emailError: emailError.message
@@ -188,7 +192,7 @@ const updateprofile = async (req, res) => {
         console.log("🔥 Received body:", req.body);
         console.log("🆔 ID param:", req.params.id);
 
-        const { FirstName, LastName, Category, Age, ContactNumber, Email, Course, Address } = req.body;
+        const { Fullname, Guardian, Address, ContactNumber, GuardianNumber, DOB, Aadhar, PAN, BloodGroup, JoiningDate, Email, Course, } = req.body;
         const _id = req.params.id;
 
         if (!_id) {
@@ -197,7 +201,7 @@ const updateprofile = async (req, res) => {
 
         const empupdate = await userModel.findByIdAndUpdate(
             _id,
-            { FirstName, LastName, Age, ContactNumber, Email, Designation, Address },
+            { Fullname, Guardian, Address, ContactNumber, Email, Course },
             { new: true }
         );
 

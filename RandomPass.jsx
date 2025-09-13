@@ -10,4 +10,4 @@ function generatePassword(length = 12) {
 const Password = generatePassword(12); // Generates a 12-character password
 console.log(Password);
 
-module.exports = {generatePassword}
+module.exports = {generatePassword}    
