@@ -11,6 +11,7 @@ const employeeLogin = require('../Controller/employeeloginController')
 const { createAttend, getAttend, getAttendId, getAttendByUserId, getAttendanceReport } = require('../Controller/empAttendController')
 const { createExamByCourse, getExams, getExamByCourse, evaluateStudentExam, getAnswersByStudents } = require('../Controller/adminExamController')
 const { getExamsByCourse, submitStudentExam } = require('../Controller/studentExamController')
+const { createCourse, courseDelete, courseList, getOneCourse, updateCourse } = require('../Controller/courseController')
 
 
 const router = express.Router()
@@ -42,6 +43,20 @@ router.route('/getAnswers').get(getAnswersByStudents)
 // Exam Student
 router.route('/getExam').get(getExamsByCourse)
 router.route('/submitExam').post(submitStudentExam)
+
+
+
+
+
+// Course
+router.route('/createCourses').post(createCourse)
+router.route('/deleteCourse').delete(courseDelete)
+router.route('/courses').get(courseList)
+router.route('/oneCourse').get(getOneCourse)
+router.route('/updateCourse').put(updateCourse)
+
+
+
 
 
 module.exports = router;
