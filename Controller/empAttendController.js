@@ -7,7 +7,7 @@ function convertToHours(timeStr) {
   return hours + minutes / 60;
 }
 const createAttend = async (req, res) => {
-  const { date, Checkin, Checkout, WorkingHours, Leavetype, From, To, Reason, Rating, Review } = req.body;
+  const { date, Checkin, Checkout, WorkingHours,  Reason } = req.body;
   const { empID } = req.params;
 
   try {
@@ -65,12 +65,8 @@ const createAttend = async (req, res) => {
         status,
         Checkin: checkinDate,
         WorkingHours: WorkingHours ?? null,
-        Leavetype,
-        From: From ? moment(From, "DD/MM/YYYY").toDate() : null,
-        To: To ? moment(To, "DD/MM/YYYY").toDate() : null,
         Reason,
-        Rating,
-        Review,
+        
       });
 
       return res.json({ message: "Check-in created", data: newRecord });
@@ -96,22 +92,20 @@ const createAttend = async (req, res) => {
       openCard.Checkout = checkoutDate;
 
       if (WorkingHours) openCard.WorkingHours = WorkingHours;
-      if (Leavetype) openCard.Leavetype = Leavetype;
-      if (From) openCard.From = moment(From, "DD/MM/YYYY").toDate();
-      if (To) openCard.To = moment(To, "DD/MM/YYYY").toDate();
       if (Reason) openCard.Reason = Reason;
-      if (Rating) openCard.Rating = Rating;
-      if (Review) openCard.Review = Review;
+      
 
       await openCard.save();
 
       return res.json({ message: "Checkout updated", data: openCard });
     }
 
-
+if(checkinDate){
+  return res.json({ message: "You cannot take leave ,tou are already checked in"})
+}
 
     // === CASE 3: Leave Only ===
-    if (!checkinDate && !checkoutDate && Leavetype && From && To) {
+    if (!checkinDate && !checkoutDate && Reason) {
       const newLeave = await attendModel.create({
         userId: empID,
         date: clientDate,
