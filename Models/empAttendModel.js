@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const empAttendSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: ['User', 'Employee'],
+        ref: 'User',
         required: true
     },
     date: { type: String, required: true },
