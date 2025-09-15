@@ -94,7 +94,7 @@ const createAttend = async (req, res) => {
       return res.json({ message: "Leave recorded", data: newLeave });
     }
 
-    return res.status(400).json({ status: false, message: "sadsaffsa." });
+    return res.status(400).json({ status: false, message: "fdsfdf." });
 
   } catch (error) {
     console.error("Attendance error:", error);

@@ -148,7 +148,7 @@ const createAttend = async (req, res) => {
 
     return res.status(400).json({
       status: false,
-      message: "Checkin or Checkout required.",
+      message: "fsjofijds",
     });
 
 
