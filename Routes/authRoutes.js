@@ -4,7 +4,7 @@
 
 
 const { adminLogin } = require('../Controller/adminloginController')
-const { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent } = require('../Controller/authController')
+// const { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent } = require('../Controller/authController')
 const { createEmployee, employeeList, profile: employeeProfile, employeeDelete, updateprofile: employeeUpdate } = require('../Controller/employeeController')
 
 const express = require ('express')
@@ -15,22 +15,34 @@ const { createAttend: createStudentAttend, getAttend: getStudentAttend, getAtten
 const { createExamByCourse, getExams, getExamByCourse, evaluateStudentExam, getAnswersByStudents } = require('../Controller/adminExamController')
 const { getExamsByCourse, submitStudentExam } = require('../Controller/studentExamController')
 const { createCourse, courseDelete, courseList, getOneCourse, updateCourse } = require('../Controller/courseController')
+const { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent } = require('../Controller/authController')
 
 
 const router = express.Router()
 
 // User management routes
-router.route('/').post(createUser)
+// router.route('/').post(createUser)
 // Student CRUD
-router.route('/students').get(getAllStudents)
-router.route('/students/:id').get(getStudentById)
-router.route('/students/:id').put(updateStudent)
-router.route('/students/:id').delete(deleteStudent)
+// router.route('/students').get(getAllStudents)
+// router.route('/students/:id').get(getStudentById)
+// router.route('/students/:id').put(updateStudent)
+// router.route('/students/:id').delete(deleteStudent)
+
+
+
+
+// logins
 router.route('/adminlogin').post(adminLogin)
 router.route('/employeelogin').post(employeeLogin)
 router.route('/login').post(authLogin)
-router.route('/list').get(employeeList)
-router.route('/profile/:id').get(employeeProfile)
+
+
+
+
+// Employees
+router.route('/addEmployee').post(createEmployee)
+router.route('/employeeList').get(employeeList)
+router.route('/employeeProfile/:id').get(employeeProfile)
 router.route('/employeeDelete/:id').delete(employeeDelete)
 router.route('/employeeUpdate/:id').put(employeeUpdate)
 
@@ -52,7 +64,6 @@ router.route('/student/attendanceReport').get(getStudentAttendanceReport)
 router.route('/createExam').post(createExamByCourse)
 router.route('/getExams').get(getExams)
 router.route('/getExamsByCourse').get(getExamByCourse)
-
 router.route('/Evaluate').post(evaluateStudentExam)
 router.route('/getAnswers').get(getAnswersByStudents)
 
@@ -66,10 +77,20 @@ router.route('/submitExam').post(submitStudentExam)
 
 // Course
 router.route('/createCourses').post(createCourse)
-router.route('/deleteCourse').delete(courseDelete)
+router.route('/deleteCourse/:id').delete(courseDelete)
 router.route('/courses').get(courseList)
-router.route('/oneCourse').get(getOneCourse)
-router.route('/updateCourse').put(updateCourse)
+router.route('/oneCourse/:id').get(getOneCourse)
+router.route('/updateCourse/:id').put(updateCourse)
+
+
+
+//Students
+router.route('/').post(createUser)
+router.route('/studentList').get(getAllStudents)
+router.route('/oneStudent/:id').get(getStudentById)
+router.route('/updateStudent/:id').put(updateStudent)
+router.route('/deleteStudent/:id').delete(deleteStudent)
+
 
 
 

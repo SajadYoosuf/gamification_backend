@@ -17,7 +17,6 @@ const empAttendSchema = new mongoose.Schema({
         enum: ["Present", "Late", "Leave"],
         required: true,
     },
-    // Present: { type: String, required: true },
     Checkin: { type: Date },
     Checkout: { type: Date },
     Breakin:{ type: String },

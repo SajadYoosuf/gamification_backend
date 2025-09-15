@@ -28,6 +28,8 @@ const createEmployee = async (req, res) => {
             Blood,
             Designation,
             CourseAssained,
+            Email,
+            Password: hashedPassword,
             EmergencyContactName,
             EmergencyNumber,
             Relationship,
@@ -129,6 +131,11 @@ const employeeDelete = async (req, res) => {
 }
 
 
+
+
+
+
+
 const employeeList = async (req, res) => {
     try {
         const employeeget = await employeeModel.find();
@@ -139,6 +146,11 @@ const employeeList = async (req, res) => {
 
     }
 }
+
+
+
+
+
 
 
 const profile = async (req, res) => {
@@ -158,9 +170,16 @@ const profile = async (req, res) => {
 }
 
 
+
+
+
 const updateprofile = async (req, res) => {
     try {
-        const { Fullname, Address, ContactNumber, CourseAssained } = req.body;
+console.log("👉 req.body:", req.body);   // log the incoming data
+        console.log("👉 req.params:", req.params);
+
+
+        const { Fullname, Address, ContactNumber, CourseAssained } = req.body || {};
         const _id = req.params.id;
 
         if (!_id) {

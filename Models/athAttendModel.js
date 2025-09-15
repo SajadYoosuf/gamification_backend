@@ -18,7 +18,6 @@ const studentAttendSchema = new mongoose.Schema({
     Breakin:{ type: String },
     Breakout:{ type: String },
     WorkingHours: { type: String }, // store as "03:45:00"
-    // Leavetype: { type: String },
     Reason: { type: String },
 });
 

@@ -49,6 +49,9 @@ const courseDelete = async (req, res) => {
 }
 
 
+
+
+
 const courseList = async (req, res) => {
     try {
         const courselist = await courseModel.find();
@@ -60,9 +63,13 @@ const courseList = async (req, res) => {
 }
 
 
+
+
+
 const getOneCourse = async (req, res) => {
     try {
         const _id = req.params.id;
+        // console.log("Route hit with id:", req.params.id);
         const onecourse = await courseModel.findOne({ _id });
         if (onecourse) {
             res.json(onecourse)
@@ -84,7 +91,9 @@ const updateCourse = async (req, res) => {
             return res.status(400).json({ error: "Id is required!" });
         }
 
+        const { CourseName, Discription, Duration, Fee, StartDate, EndDate, AssignedMentor } = req.body;
 
+        
         const updatecourse = await courseModel.findByIdAndUpdate(
             _id,
             { CourseName, Discription, Duration, Fee, StartDate, EndDate, AssignedMentor },
@@ -98,12 +107,12 @@ const updateCourse = async (req, res) => {
             message: "Successfully Updated Course",
             data: updatecourse,
         })
-    }catch(error){
+    } catch (error) {
         console.log("❌ Error in updateprofile:", error)
-res.status(500).json({ error: "Internal Server Error", message: error.message });
+        res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 }
 
 
 
-module.exports = { createCourse, courseDelete, courseList, getOneCourse, updateCourse}
+module.exports = { createCourse, courseDelete, courseList, getOneCourse, updateCourse }

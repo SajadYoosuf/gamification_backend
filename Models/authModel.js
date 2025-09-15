@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     JoiningDate: { type: Date, required: true },
     Email: { type: String, required: true, unique: true },
     Course: { type: String, required: true},
-     Password: { type: String, required: true },
+     Password: { type: String },
      EmergencyContactName: { type: String, required: true },
     EmergencyNumber: { type: String, required: true },
     Relationship: { type: String, required: true },

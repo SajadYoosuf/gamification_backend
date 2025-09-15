@@ -63,13 +63,22 @@ const createUser = async (req, res) => {
             return res.status(201).json({ status: true, message: 'User created successfully and credentials sent to email', data: { id: user._id, Fullname: user.Fullname, Email: user.Email } });
         } catch (emailError) {
             console.error('Error sending email:', emailError.message);
-            return res.status(201).json({ status: true, message: 'User created successfully but email could not be sent', data: { id: user._id, Fullname: user.Fullname, Email: user.Email }, emailError: emailError.message });
+            return res.status(201).json({ 
+                status: true,
+                 message: 'User created successfully but email could not be sent', 
+                 data: { id: user._id, Fullname: user.Fullname, Email: user.Email }, 
+                 emailError: emailError.message 
+                });
         }
     } catch (error) {
         console.error(error);
         return res.status(500).json({ status: false, message: 'Something went wrong', error: error.message });
     }
 };
+
+
+
+
 
 const getAllStudents = async (req, res) => {
     try {
@@ -80,6 +89,11 @@ const getAllStudents = async (req, res) => {
         return res.status(500).json({ status: false, message: 'Could not fetch students', error: err.message });
     }
 };
+
+
+
+
+
 
 const getStudentById = async (req, res) => {
     try {
@@ -93,6 +107,11 @@ const getStudentById = async (req, res) => {
     }
 };
 
+
+
+
+
+
 const updateStudent = async (req, res) => {
     try {
         const { id } = req.params;
@@ -100,7 +119,7 @@ const updateStudent = async (req, res) => {
         // Prevent direct password overwrite here; use a separate change-password flow
         delete updates.Password;
 
-        const updated = await userModel.findByIdAndUpdate(id, updates, { new: true }).select('-Password');
+        const updated = await userModel.findByIdAndUpdate(id, updates, { new: true }).select('-Password , -Email');
         if (!updated) return res.status(404).json({ status: false, message: 'Student not found' });
         return res.status(200).json({ status: true, message: 'Student updated', data: updated });
     } catch (err) {
@@ -109,16 +128,29 @@ const updateStudent = async (req, res) => {
     }
 };
 
+
+
+
+
+
 const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
         const deleted = await userModel.findByIdAndDelete(id).select('-Password');
         if (!deleted) return res.status(404).json({ status: false, message: 'Student not found' });
-        return res.status(200).json({ status: true, message: 'Student deleted', data: deleted });
+        return res.status(200).json({
+             status: true,
+              message: 'Student deleted',
+               data: deleted 
+            });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ status: false, message: 'Could not delete student', error: err.message });
     }
 };
+
+
+
+
 
 module.exports = { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent };

@@ -6,11 +6,13 @@ function convertToHours(timeStr) {
   const [hours, minutes] = timeStr.split(":").map(Number);
   return hours + minutes / 60;
 }
-const createAttend = async (req, res) => {
-  const { date, Checkin, Checkout, WorkingHours, Leavetype, From, To, Reason, Rating, Review } = req.body;
-  const { userId } = req.params;
 
+
+const createAttend = async (req, res) => {
   try {
+    let { date, Checkin, Checkout, Breakin, Breakout, WorkingHours, Reason } = req.body;
+    const { userId } = req.params;
+
     const serverDate = moment().format("DD/MM/YYYY");
     const clientDate = date || serverDate;
 
@@ -25,35 +27,25 @@ const createAttend = async (req, res) => {
       });
     }
 
-    const [day, month, year] = clientDate.split("/").map(Number);
+    // 🔑 Normalize empty strings → undefined
+    Checkin = Checkin || undefined;
+    Checkout = Checkout || undefined;
+    Breakin = Breakin || undefined;
+    Breakout = Breakout || undefined;
+    Reason = Reason || undefined;
 
-    const checkinDate = Checkin
-      ? new Date(year, month - 1, day, ...Checkin.split(":").map(Number))
-      : null;
+    // === CASE 1: Checkin ===
+    if (Checkin) {
+      const checkinDate = new Date();
 
-    const checkoutDate = Checkout
-      ? new Date(year, month - 1, day, ...Checkout.split(":").map(Number))
-      : null;
-
-    let status = "Absent";
-    if (checkinDate) {
+      let status = "Present";
       const tenAM = new Date(checkinDate);
       tenAM.setHours(10, 10, 0, 0);
       status = checkinDate < tenAM ? "Present" : "Late";
-    }
 
-    // === CASE 1: Checkin ===
-    if (checkinDate) {
-      const existing = await studentAttendModel.findOne({
-        userId,
-        date: clientDate,
-      });
-
+      const existing = await studentAttendModel.findOne({ userId, date: clientDate });
       if (existing && existing.Checkin) {
-        return res.status(400).json({
-          status: false,
-          message: "You have already checked in today.",
-        });
+        return res.status(400).json({ status: false, message: "You have already checked in today." });
       }
 
       const newRecord = await studentAttendModel.create({
@@ -61,25 +53,20 @@ const createAttend = async (req, res) => {
         date: clientDate,
         status,
         Checkin: checkinDate,
+        Breakin,
+        Breakout,
         WorkingHours: WorkingHours ?? null,
-        Leavetype,
-        From: From ? moment(From, "DD/MM/YYYY").toDate() : null,
-        To: To ? moment(To, "DD/MM/YYYY").toDate() : null,
         Reason,
-        Rating,
-        Review,
       });
 
       return res.json({ message: "Check-in created", data: newRecord });
     }
 
     // === CASE 2: Checkout ===
-    if (checkoutDate) {
-      const openCard = await studentAttendModel.findOne({
-        userId,
-        date: clientDate,
-      }).sort({ createdAt: -1 });
+    if (Checkout) {
+      const checkoutDate = new Date();
 
+      const openCard = await studentAttendModel.findOne({ userId, date: clientDate }).sort({ createdAt: -1 });
       if (!openCard || openCard.Checkout) {
         return res.status(400).json({
           status: false,
@@ -88,67 +75,41 @@ const createAttend = async (req, res) => {
       }
 
       openCard.Checkout = checkoutDate;
-
       if (WorkingHours) openCard.WorkingHours = WorkingHours;
-      if (Leavetype) openCard.Leavetype = Leavetype;
-      if (From) openCard.From = moment(From, "DD/MM/YYYY").toDate();
-      if (To) openCard.To = moment(To, "DD/MM/YYYY").toDate();
       if (Reason) openCard.Reason = Reason;
-      if (Rating) openCard.Rating = Rating;
-      if (Review) openCard.Review = Review;
 
       await openCard.save();
-
       return res.json({ message: "Checkout updated", data: openCard });
     }
 
     // === CASE 3: Leave Only ===
-    if (!checkinDate && !checkoutDate && Leavetype && From && To) {
+    if (Reason && !Checkin && !Checkout) {
       const newLeave = await studentAttendModel.create({
         userId,
         date: clientDate,
         status: "Leave",
-        Leavetype,
-        From: moment(From, "DD/MM/YYYY").toDate(),
-        To: moment(To, "DD/MM/YYYY").toDate(),
         Reason,
       });
 
       return res.json({ message: "Leave recorded", data: newLeave });
     }
 
-    // === CASE 4: Add Rating & Review only ===
-    if (!checkinDate && !checkoutDate && (Rating || Review)) {
-      const existing = await studentAttendModel.findOne({
-        userId,
-        date: clientDate
-      }).sort({ createdAt: -1 });
-
-      if (!existing) {
-        return res.status(404).json({ message: "No attendance record found for review." });
-      }
-
-      if (Rating) existing.Rating = Rating;
-      if (Review) existing.Review = Review;
-
-      await existing.save();
-      return res.json({ message: "Review submitted", data: existing });
-    }
-
-    return res.status(400).json({
-      status: false,
-      message: "Checkin or Checkout required.",
-    });
+    return res.status(400).json({ status: false, message: "sadsaffsa." });
 
   } catch (error) {
     console.error("Attendance error:", error);
-    return res.status(500).json({
-      status: false,
-      message: "Something went wrong",
-      error: error.message,
-    });
+    return res.status(500).json({ status: false, message: "Something went wrong", error: error.message });
   }
 };
+
+
+
+
+
+
+
+
+
 
 const getAttend = async (req, res) => {
   try {
