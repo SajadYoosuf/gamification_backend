@@ -20,13 +20,7 @@ const { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent
 
 const router = express.Router()
 
-// User management routes
-// router.route('/').post(createUser)
-// Student CRUD
-// router.route('/students').get(getAllStudents)
-// router.route('/students/:id').get(getStudentById)
-// router.route('/students/:id').put(updateStudent)
-// router.route('/students/:id').delete(deleteStudent)
+
 
 
 

@@ -38,19 +38,63 @@ const createUser = async (req, res) => {
             JoiningDate,
             Course,
             Email,
-            Password: hashedPassword,
+            Password: generatedPassword,
             EmergencyContactName,
             EmergencyNumber,
             Relationship,
         });
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: Email,
-            subject: 'Welcome 🎉 You’re an Early Explorer of Our Innovative Attendance System!',
-            text: `Hello ${Fullname},\n\nYou can log in with:\nEmail: ${Email}\nPassword: ${generatedPassword}\n\nBest,\nThe Admin Team`,
-            html: `<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;"><h2 style="color: #4CAF50;">🎉 Welcome, ${Fullname}!</h2><p>Your account has been created.</p><div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;"><h3>🔑 Your Login Credentials</h3><p><strong>Email:</strong> ${Email}</p><p><strong>Password:</strong> ${generatedPassword}</p></div><p>Best regards,<br/><strong>The Admin Team</strong></p></div>`
-        };
+       const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: Email,
+    subject: 'Welcome 🎉 You’re an Early Explorer of Our Innovative Attendance System!',
+    text: `Hello ${FirstName} ${LastName},
+
+We’re thrilled to welcome you as one of the very first users of our Attendance Management System. 🌟  
+
+Right now, you can log in and start using the system with your credentials below:  
+Email: ${Email}  
+Password: ${generatedPassword}  
+
+As an early explorer, you’re not just using a tool — you’re helping us shape the future. 🚀  
+We’re building exciting upcoming features like rewards, progress milestones, and gamified experiences that will make your journey even more engaging.  
+
+For now, enjoy the simplicity of managing your attendance with ease — and know that you’re among the pioneers helping us grow.  
+
+Best regards,  
+The Admin Team`,
+
+    html: `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+            <h2 style="color: #4CAF50;">🎉 Welcome, ${FirstName} ${LastName}!</h2>
+            <p>You are one of the <strong>early explorers</strong> of our brand-new <em>Attendance Management System</em>.</p>
+            
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;">
+                <h3>🔑 Your Login Credentials</h3>
+                <p><strong>Email:</strong> ${Email}</p>
+                <p><strong>Password:</strong> ${generatedPassword}</p>
+            </div>
+            
+            <p>Right now, you can enjoy a smooth and simple way to manage your attendance. ✅</p>
+            
+            <h3>✨ Coming Soon</h3>
+            <p>We’re working on exciting features like:</p>
+            <ul>
+                <li>🏆 Rewards for consistency</li>
+                <li>📈 Progress milestones</li>
+                <li>🎮 Gamified experiences to make attendance fun</li>
+            </ul>
+            
+            <p>As one of our first users, you’re not just using the system — you’re shaping its future. 🚀</p>
+            
+            <p>Thank you for being with us at the very start of this journey.</p>
+            
+            <p>Best regards,<br>
+            <strong>The Admin Team</strong></p>
+        </div>
+    `
+};
+
 
         transporter.verify((error, success) => {
             if (error) console.log("SMTP connection error:", error);

@@ -16,7 +16,7 @@ const createEmployee = async (req, res) => {
         // generate a password for employees as well
         const generatedPassword = generatePassword();
         const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(generatedPassword, saltRounds);
+        // const hashedPassword = await bcrypt.hash(generatedPassword, saltRounds);
 
         const newEmployee = await employeeModel.create({
             Fullname,
@@ -29,7 +29,7 @@ const createEmployee = async (req, res) => {
             Designation,
             CourseAssained,
             Email,
-            Password: hashedPassword,
+            Password: generatedPassword,
             EmergencyContactName,
             EmergencyNumber,
             Relationship,
