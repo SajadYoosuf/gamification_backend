@@ -6,6 +6,7 @@ require('dotenv').config();
 
 
 const createEmployee = async (req, res) => {
+    console.log("👉 req.body:", req.body);   // log the incoming data
     const { Fullname, Address, ContactNumber, AadharNumber, PAN, JoiningDate, Blood, Designation, CourseAssained, EmergencyContactName, EmergencyNumber, Relationship, Email } = req.body;
 
     try {

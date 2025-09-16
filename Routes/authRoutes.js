@@ -3,7 +3,7 @@
 
 
 
-const { adminLogin } = require('../Controller/adminloginController')
+const { adminLogin,createDefaultAdmin } = require('../Controller/adminloginController')
 // const { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent } = require('../Controller/authController')
 const { createEmployee, employeeList, profile: employeeProfile, employeeDelete, updateprofile: employeeUpdate } = require('../Controller/employeeController')
 
@@ -31,7 +31,7 @@ router.route('/employeelogin').post(employeeLogin)
 router.route('/login').post(authLogin)
 
 
-
+router.route('/createAdmin').post(createDefaultAdmin);
 
 // Employees
 router.route('/addEmployee').post(createEmployee)
