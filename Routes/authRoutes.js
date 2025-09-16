@@ -46,7 +46,7 @@ router.route('/employeeProfile/:id').get(employeeProfile)
 router.route('/employeeDelete/:id').delete(employeeDelete)
 router.route('/employeeUpdate/:id').put(employeeUpdate)
 
-// Attendance routes
+// Employee Attendance routes
 router.route('/attend/:empID').post(createAttend)
 router.route('/attendlist').get(getAttend)
 router.route('/getAttendById/:id').get(getAttendId)

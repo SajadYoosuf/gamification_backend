@@ -1,14 +1,15 @@
-const { userModel } = require("../Models/authModel");
+
 const bcrypt = require("bcrypt");
+const { employeeModel } = require("../Models/empModel");
 
 const employeeLogin = async (req, res) => {
     const { Email, Password } = req.body;
 
     try {
 
-        const user = await userModel.findOne({ Email });
+        const employee = await employeeModel.findOne({ Email });
 
-        if (!user) {
+        if (!employee) {
             return res.status(401).json({
                 status: false,
                 message: "Invalid email or password"
@@ -16,7 +17,7 @@ const employeeLogin = async (req, res) => {
         }
 
 
-        const isPasswordValid = await bcrypt.compare(Password, user.Password);
+        const isPasswordValid = await bcrypt.compare(Password, employee.Password);
 
         if (!isPasswordValid) {
             return res.status(401).json({
@@ -30,12 +31,11 @@ const employeeLogin = async (req, res) => {
             status: true,
             message: "Login successful",
             data: {
-                id: user._id,
-                FirstName: user.FirstName,
-                LastName: user.LastName,
-                Email: user.Email,
-                ContactNumber: user.ContactNumber,
-                Address: user.Address
+                id: employee._id,
+                FullName : employee.Fullname,
+                Email: employee.Email,
+                ContactNumber: employee.ContactNumber,
+                Address: employee.Address
             }
         });
 

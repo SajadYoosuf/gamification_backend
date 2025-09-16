@@ -33,6 +33,9 @@ const createAttend = async (req, res) => {
     Breakin = Breakin || undefined;
     Breakout = Breakout || undefined;
     Reason = Reason || undefined;
+    
+
+     
 
     // === CASE 1: Checkin ===
     if (Checkin) {
@@ -83,14 +86,27 @@ const createAttend = async (req, res) => {
     }
 
     // === CASE 3: Leave Only ===
-    if (Reason && !Checkin && !Checkout) {
-      const newLeave = await studentAttendModel.create({
-        userId,
-        date: clientDate,
-        status: "Leave",
-        Reason,
-      });
 
+
+
+
+    if (Reason) {
+      
+      const existing = await studentAttendModel.findOne({ userId, date: clientDate });
+      if (existing && existing.Checkin && Reason) {
+        return res.status(400).json({ status: false, message: "You have already checked in today." });
+      }
+
+
+
+      // const newLeave = await studentAttendModel.create({
+      //   userId,
+      //   date: clientDate,
+      //   status: "Leave",
+      //   Reason,
+      // });
+
+      
       return res.json({ message: "Leave recorded", data: newLeave });
     }
 
