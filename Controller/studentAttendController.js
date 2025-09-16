@@ -1,25 +1,24 @@
 const moment = require("moment-timezone");
-const { attendModel } = require("../Models/empAttendModel");
+const { studentAttendModel } = require("../Models/athAttendModel");
 
 // Helper to convert "HH:mm" string to float hours
 function convertToHours(timeStr) {
   const [hours, minutes] = timeStr.split(":").map(Number);
   return hours + minutes / 60;
 }
-const createAttend = async (req, res) => {
-  const { date, Checkin, Checkout, WorkingHours,  Reason } = req.body;
-  const { empID } = req.params;
 
+
+const createAttend = async (req, res) => {
   try {
+    let { date, Checkin, Checkout, Breakin, Breakout, WorkingHours, Reason } = req.body;
+    const { userId } = req.params;
+
     const serverDate = moment().format("DD/MM/YYYY");
     const clientDate = date || serverDate;
 
-    if (!empID || empID === "undefined") {
+    if (!userId || userId === "undefined") {
       return res.status(400).json({ message: "Invalid user ID in URL." });
     }
-
-
-
 
     if (clientDate !== serverDate) {
       return res.status(400).json({
@@ -28,60 +27,46 @@ const createAttend = async (req, res) => {
       });
     }
 
-    const [day, month, year] = clientDate.split("/").map(Number);
+    // 🔑 Normalize empty strings → undefined
+    Checkin = Checkin || undefined;
+    Checkout = Checkout || undefined;
+    Breakin = Breakin || undefined;
+    Breakout = Breakout || undefined;
+    Reason = Reason || undefined;
 
-    const checkinDate = Checkin
-      ? new Date(year, month - 1, day, ...Checkin.split(":").map(Number))
-      : null;
+    // === CASE 1: Checkin ===
+    if (Checkin) {
+      const checkinDate = new Date();
 
-    const checkoutDate = Checkout
-      ? new Date(year, month - 1, day, ...Checkout.split(":").map(Number))
-      : null;
-
-    let status = "Absent";
-    if (checkinDate) {
+      let status = "Present";
       const tenAM = new Date(checkinDate);
       tenAM.setHours(10, 10, 0, 0);
       status = checkinDate < tenAM ? "Present" : "Late";
-    }
 
-    // === CASE 1: Checkin ===
-    if (checkinDate) {
-      const existing = await attendModel.findOne({
-        userId: empID,
-        date: clientDate,
-      });
-
+      const existing = await studentAttendModel.findOne({ userId, date: clientDate });
       if (existing && existing.Checkin) {
-        return res.status(400).json({
-          status: false,
-          message: "You have already checked in today.",
-        });
+        return res.status(400).json({ status: false, message: "You have already checked in today." });
       }
 
-      const newRecord = await attendModel.create({
-        userId: empID,
+      const newRecord = await studentAttendModel.create({
+        userId,
         date: clientDate,
         status,
         Checkin: checkinDate,
+        Breakin,
+        Breakout,
         WorkingHours: WorkingHours ?? null,
         Reason,
-        
       });
 
       return res.json({ message: "Check-in created", data: newRecord });
     }
 
-
-
-
     // === CASE 2: Checkout ===
-    if (checkoutDate) {
-      const openCard = await attendModel.findOne({
-        userId: empID,
-        date: clientDate,
-      }).sort({ createdAt: -1 });
+    if (Checkout) {
+      const checkoutDate = new Date();
 
+      const openCard = await studentAttendModel.findOne({ userId, date: clientDate }).sort({ createdAt: -1 });
       if (!openCard || openCard.Checkout) {
         return res.status(400).json({
           status: false,
@@ -90,70 +75,30 @@ const createAttend = async (req, res) => {
       }
 
       openCard.Checkout = checkoutDate;
-
       if (WorkingHours) openCard.WorkingHours = WorkingHours;
       if (Reason) openCard.Reason = Reason;
-      
 
       await openCard.save();
-
       return res.json({ message: "Checkout updated", data: openCard });
     }
 
-if(checkinDate){
-  return res.json({ message: "You cannot take leave ,tou are already checked in"})
-}
-
     // === CASE 3: Leave Only ===
-    if (!checkinDate && !checkoutDate && Reason) {
-      const newLeave = await attendModel.create({
-        userId: empID,
+    if (Reason && !Checkin && !Checkout) {
+      const newLeave = await studentAttendModel.create({
+        userId,
         date: clientDate,
         status: "Leave",
-        Leavetype,
-        From: moment(From, "DD/MM/YYYY").toDate(),
-        To: moment(To, "DD/MM/YYYY").toDate(),
         Reason,
       });
 
       return res.json({ message: "Leave recorded", data: newLeave });
     }
 
-
-    // === CASE 4: Add Rating & Review only ===
-    if (!checkinDate && !checkoutDate && (Rating || Review)) {
-      const existing = await attendModel.findOne({
-        userId: empID,
-        date: clientDate
-      }).sort({ createdAt: -1 });
-
-      if (!existing) {
-        return res.status(404).json({ message: "No attendance record found for review." });
-      }
-
-      if (Rating) existing.Rating = Rating;
-      if (Review) existing.Review = Review;
-
-      await existing.save();
-      return res.json({ message: "Review submitted", data: existing });
-    }
-
-
-
-    return res.status(400).json({
-      status: false,
-      message: "fsjofijds",
-    });
-
-
+    return res.status(400).json({ status: false, message: "fdsfdf." });
 
   } catch (error) {
     console.error("Attendance error:", error);
-    return res.status(500).json({
-      status: false,
-      message: "Something went wrong",
-      error: error.message,
-    });
+    return res.status(500).json({ status: false, message: "Something went wrong", error: error.message });
   }
 };
 
@@ -163,9 +108,12 @@ if(checkinDate){
 
 
 
+
+
+
 const getAttend = async (req, res) => {
   try {
-    const getattend = await attendModel.find().populate('userId', 'FirstName LastName Email ContactNumber');
+    const getattend = await studentAttendModel.find().populate('userId', 'Fullname Email ContactNumber');
     res.send(getattend);
   } catch (error) {
     console.log(error);
@@ -176,7 +124,7 @@ const getAttend = async (req, res) => {
 const getAttendId = async (req, res) => {
   try {
     const _id = req.params.id;
-    const attendId = await attendModel.findById(_id).populate('userId', 'FirstName LastName Email ContactNumber');
+    const attendId = await studentAttendModel.findById(_id).populate('userId', 'Fullname Email ContactNumber');
     if (attendId) {
       res.json(attendId);
     } else {
@@ -192,7 +140,7 @@ const getAttendId = async (req, res) => {
 const getAttendByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const attendanceRecords = await attendModel.find({ userId }).populate('userId', 'FirstName LastName Email ContactNumber');
+    const attendanceRecords = await studentAttendModel.find({ userId }).populate('userId', 'Fullname Email ContactNumber');
     if (attendanceRecords.length > 0) {
       res.json(attendanceRecords);
     } else {
@@ -221,8 +169,8 @@ const getAttendanceReport = async (req, res) => {
       };
     }
 
-    const attendanceData = await attendModel.find(query)
-      .populate('userId', 'FirstName LastName Email ContactNumber')
+    const attendanceData = await studentAttendModel.find(query)
+      .populate('userId', 'Fullname Email ContactNumber')
       .sort({ date: -1 });
 
     res.json(attendanceData);
