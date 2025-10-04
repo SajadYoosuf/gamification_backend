@@ -17,6 +17,7 @@ const createEmployee = async (req, res) => {
         // generate a password for employees as well
         const generatedPassword = generatePassword();
         const saltRounds = 10;
+        
         // const hashedPassword = await bcrypt.hash(generatedPassword, saltRounds);
 
         const newEmployee = await employeeModel.create({
@@ -36,6 +37,7 @@ const createEmployee = async (req, res) => {
             Relationship,
             // Note: employeeModel doesn't have Email/Password fields currently; store only if schema updated
         });
+   
 
         // attempt to email credentials if transporter and Email provided
         if (Email && transporter) {

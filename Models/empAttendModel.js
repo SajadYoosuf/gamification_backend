@@ -13,6 +13,7 @@ const empAttendSchema = new mongoose.Schema({
         required: true
     },
     date: { type: String, required: true },
+    Fullname: { type: String },
     status: {
         type: String,
         enum: ["Present", "Late", "Leave"],
@@ -32,6 +33,6 @@ const empAttendSchema = new mongoose.Schema({
     // },
     // Review: { type: String }
 })
-const attendModel = mongoose.model('attend', empAttendSchema);
+const attendModel = mongoose.model('employeeAttendance', empAttendSchema);
 module.exports = { attendModel };
 
