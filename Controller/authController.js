@@ -1,4 +1,4 @@
-const { userModel } = require("../Models/authModel.js");
+const { StudentModel } = require("../Models/authModel.js");
 const { courseModel } = require("../Models/course");
 const bcrypt = require("bcrypt");
 const { generatePassword } = require("../RandomPass.jsx");
@@ -25,7 +25,7 @@ const createUser = async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(generatedPassword, saltRounds);
 
-        const user = await userModel.create({
+        const user = await StudentModel.create({
             Fullname,
             Guardian,
             Address,
@@ -126,7 +126,7 @@ The Admin Team`,
 
 const getAllStudents = async (req, res) => {
     try {
-        const students = await userModel.find().select('-Password').lean();
+        const students = await StudentModel.find().select('-Password').lean();
         return res.status(200).json({ status: true, data: students });
     } catch (err) {
         console.error(err);
@@ -142,7 +142,7 @@ const getAllStudents = async (req, res) => {
 const getStudentById = async (req, res) => {
     try {
         const { id } = req.params;
-        const student = await userModel.findById(id).select('-Password');
+        const student = await StudentModel.findById(id).select('-Password');
         if (!student) return res.status(404).json({ status: false, message: 'Student not found' });
         return res.status(200).json({ status: true, data: student });
     } catch (err) {
@@ -163,7 +163,7 @@ const updateStudent = async (req, res) => {
         // Prevent direct password overwrite here; use a separate change-password flow
         delete updates.Password;
 
-        const updated = await userModel.findByIdAndUpdate(id, updates, { new: true }).select('-Password , -Email');
+        const updated = await StudentModel.findByIdAndUpdate(id, updates, { new: true }).select('-Password , -Email');
         if (!updated) return res.status(404).json({ status: false, message: 'Student not found' });
         return res.status(200).json({ status: true, message: 'Student updated', data: updated });
     } catch (err) {
@@ -180,7 +180,7 @@ const updateStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
-        const deleted = await userModel.findByIdAndDelete(id).select('-Password');
+        const deleted = await StudentModel.findByIdAndDelete(id).select('-Password');
         if (!deleted) return res.status(404).json({ status: false, message: 'Student not found' });
         return res.status(200).json({
              status: true,
