@@ -122,7 +122,8 @@ const createAttend = async (req, res) => {
 
 const getAttend = async (req, res) => {
   try {
-    const getattend = await studentAttendModel.find().populate('userId', 'Fullname Email ContactNumber');
+    const getattend = await studentAttendModel.find()
+      // .populate('userId', 'Fullname Email ContactNumber') 
     res.send(getattend);
   } catch (error) {
     console.log(error);
@@ -133,7 +134,9 @@ const getAttend = async (req, res) => {
 const getAttendId = async (req, res) => {
   try {
     const _id = req.params.id;
-    const attendId = await studentAttendModel.findById(_id).populate('userId', 'Fullname Email ContactNumber');
+    const attendId = await studentAttendModel.findById(_id)
+      // .populate('userId', 'Fullname Email ContactNumber') 
+
     if (attendId) {
       res.json(attendId);
     } else {

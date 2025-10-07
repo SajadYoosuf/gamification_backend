@@ -1,5 +1,6 @@
 const { employeeModel } = require("../Models/empModel");
 const bcrypt = require("bcrypt");
+const argon2 = require("argon2");
 const { generatePassword } = require("../RandomPass.jsx");
 const { transporter } = require("../Config/nodeMail.js");
 require('dotenv').config();
@@ -16,9 +17,9 @@ const createEmployee = async (req, res) => {
 
         // generate a password for employees as well
         const generatedPassword = generatePassword();
-        const saltRounds = 10;
+        // const saltRounds = 10;
         
-        // const hashedPassword = await bcrypt.hash(generatedPassword, saltRounds);
+        const hashedPassword = await argon2.hash(generatedPassword);
 
         const newEmployee = await employeeModel.create({
             Fullname,
@@ -31,7 +32,7 @@ const createEmployee = async (req, res) => {
             Designation,
             CourseAssained,
             Email,
-            Password: generatedPassword,
+            Password: hashedPassword,
             EmergencyContactName,
             EmergencyNumber,
             Relationship,
