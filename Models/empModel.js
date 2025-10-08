@@ -12,7 +12,7 @@ const employeeSchema = new mongoose.Schema({
     Designation: {
         type: [String],
         enum: ['Business Development', 'Mentor', 'HR'],
-        required: true,
+        required: true
     },
     CourseAssained: { type: String, required: true },
     Email: { type: String, required: true },

@@ -11,7 +11,7 @@ const createUser = async (req, res) => {
     try {
         let allowedCourses = ['MERN Stack', 'Python', 'Flutter', 'Digital Marketing'];
         try {
-            const dbCourses = await courseModel.find().select('CourseName -_id').lean();
+            const dbCourses = await StudentModel.find().select('CourseName -_id').lean();
             const dbCourseNames = (dbCourses || []).map(c => c.CourseName).filter(Boolean);
             if (dbCourseNames.length > 0) allowedCourses = dbCourseNames;
         } catch (e) {
@@ -44,29 +44,29 @@ const createUser = async (req, res) => {
             Relationship,
         });
 
-       const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: Email,
-    subject: 'Welcome 🎉 You’re an Early Explorer of Our Innovative Attendance System!',
-    text: `Hello ${FirstName} ${LastName},
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: Email,
+            subject: 'Welcome 🎉 You’re an Early Explorer of Our Innovative Attendance System!',
+            text: `Hello ${Fullname}
 
-We’re thrilled to welcome you as one of the very first users of our Attendance Management System. 🌟  
+                We’re thrilled to welcome you as one of the very first users of our Attendance Management System. 🌟  
 
-Right now, you can log in and start using the system with your credentials below:  
-Email: ${Email}  
-Password: ${generatedPassword}  
+                Right now, you can log in and start using the system with your credentials below:  
+                Email: ${Email}  
+                Password: ${generatedPassword}  
 
-As an early explorer, you’re not just using a tool — you’re helping us shape the future. 🚀  
-We’re building exciting upcoming features like rewards, progress milestones, and gamified experiences that will make your journey even more engaging.  
+                As an early explorer, you’re not just using a tool — you’re helping us shape the future. 🚀  
+                We’re building exciting upcoming features like rewards, progress milestones, and gamified experiences that will make your journey even more engaging.  
 
-For now, enjoy the simplicity of managing your attendance with ease — and know that you’re among the pioneers helping us grow.  
+                For now, enjoy the simplicity of managing your attendance with ease — and know that you’re among the pioneers helping us grow.  
 
-Best regards,  
-The Admin Team`,
+                Best regards,  
+                The Admin Team`,
 
-    html: `
+            html: `
         <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-            <h2 style="color: #4CAF50;">🎉 Welcome, ${FirstName} ${LastName}!</h2>
+            <h2 style="color: #4CAF50;">🎉 Welcome, ${Fullname} !</h2>
             <p>You are one of the <strong>early explorers</strong> of our brand-new <em>Attendance Management System</em>.</p>
             
             <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;">
@@ -93,7 +93,7 @@ The Admin Team`,
             <strong>The Admin Team</strong></p>
         </div>
     `
-};
+        };
 
 
         transporter.verify((error, success) => {
@@ -107,12 +107,12 @@ The Admin Team`,
             return res.status(201).json({ status: true, message: 'User created successfully and credentials sent to email', data: { id: user._id, Fullname: user.Fullname, Email: user.Email } });
         } catch (emailError) {
             console.error('Error sending email:', emailError.message);
-            return res.status(201).json({ 
+            return res.status(201).json({
                 status: true,
-                 message: 'User created successfully but email could not be sent', 
-                 data: { id: user._id, Fullname: user.Fullname, Email: user.Email }, 
-                 emailError: emailError.message 
-                });
+                message: 'User created successfully but email could not be sent',
+                data: { id: user._id, Fullname: user.Fullname, Email: user.Email },
+                emailError: emailError.message
+            });
         }
     } catch (error) {
         console.error(error);
@@ -183,10 +183,10 @@ const deleteStudent = async (req, res) => {
         const deleted = await StudentModel.findByIdAndDelete(id).select('-Password');
         if (!deleted) return res.status(404).json({ status: false, message: 'Student not found' });
         return res.status(200).json({
-             status: true,
-              message: 'Student deleted',
-               data: deleted 
-            });
+            status: true,
+            message: 'Student deleted',
+            data: deleted
+        });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ status: false, message: 'Could not delete student', error: err.message });
