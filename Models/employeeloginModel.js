@@ -8,3 +8,4 @@ const employeeloginSchema = new mongoose.Schema({
 const emplModel = mongoose.model('Emplogin',employeeloginSchema)
 
 module.exports = emplModel
+ 

@@ -14,15 +14,16 @@ const createAttend = async (req, res) => {
     const { userId } = req.params;
 
     const serverDate = moment().format("DD/MM/YYYY");
+    
     const clientDate = date || serverDate;
-
+ 
     if (!userId || userId === "undefined") {
       return res.status(400).json({ message: "Invalid user ID in URL." });
     }
 
     if (clientDate !== serverDate) {
       return res.status(400).json({
-        status: false,
+        status: false,  
         message: "You can only check in, check out, or apply leave for today.",
       });
     }
@@ -62,7 +63,7 @@ const createAttend = async (req, res) => {
         Reason,
         Fullname,
         review,
-        rating,
+        rating, 
       });
 
       return res.json({ message: "Check-in created", data: newRecord });
