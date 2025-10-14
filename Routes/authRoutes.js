@@ -3,7 +3,7 @@
 
 
 
-const { adminLogin } = require('../Controller/adminloginController')
+const { adminLogin,createDefaultAdmin } = require('../Controller/adminloginController')
 // const { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent } = require('../Controller/authController')
 const { createEmployee, employeeList, profile: employeeProfile, employeeDelete, updateprofile: employeeUpdate } = require('../Controller/employeeController')
 
@@ -20,13 +20,7 @@ const { createUser, getAllStudents, getStudentById, updateStudent, deleteStudent
 
 const router = express.Router()
 
-// User management routes
-// router.route('/').post(createUser)
-// Student CRUD
-// router.route('/students').get(getAllStudents)
-// router.route('/students/:id').get(getStudentById)
-// router.route('/students/:id').put(updateStudent)
-// router.route('/students/:id').delete(deleteStudent)
+
 
 
 
@@ -37,7 +31,7 @@ router.route('/employeelogin').post(employeeLogin)
 router.route('/login').post(authLogin)
 
 
-
+router.route('/createAdmin').post(createDefaultAdmin);
 
 // Employees
 router.route('/addEmployee').post(createEmployee)

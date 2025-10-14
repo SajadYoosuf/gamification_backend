@@ -9,7 +9,7 @@ const questionSchema = new mongoose.Schema({
 const examSchema = new mongoose.Schema({
     Course: {
         type: String,
-        enum: ["MERN Stack", "Python", "Digital Marketing", "Flutter"], 
+        enum: ["MERN Stack", "Python", "Digital Marketing", "Flutter","Nodejs","Java","Data Science","Web Designing"], 
         required: true
     },
     Category: { type: String },

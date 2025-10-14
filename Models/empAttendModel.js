@@ -5,6 +5,7 @@ const mongoose = require("mongoose")
 const empAttendSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
+
         // Mongoose does not accept an array for `ref`.
         // This attendance model is used for employees, so reference the "Employee" model.
         // If you need polymorphic refs in future, use `refPath` with an accompanying type field.
@@ -12,6 +13,7 @@ const empAttendSchema = new mongoose.Schema({
         required: true
     },
     date: { type: String, required: true },
+    Fullname: { type: String },
     status: {
         type: String,
         enum: ["Present", "Late", "Leave"],
@@ -31,6 +33,6 @@ const empAttendSchema = new mongoose.Schema({
     // },
     // Review: { type: String }
 })
-const attendModel = mongoose.model('attend', empAttendSchema);
+const attendModel = mongoose.model('employeeAttendance', empAttendSchema);
 module.exports = { attendModel };
 

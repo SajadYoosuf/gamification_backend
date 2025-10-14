@@ -1,22 +1,23 @@
 const { employeeModel } = require("../Models/empModel");
 const bcrypt = require("bcrypt");
+const argon2 = require("argon2");
 const { generatePassword } = require("../RandomPass.jsx");
 const { transporter } = require("../Config/nodeMail.js");
 require('dotenv').config();
 
 
 const createEmployee = async (req, res) => {
+    console.log("👉 req.body:", req.body);   // log the incoming data
     const { Fullname, Address, ContactNumber, AadharNumber, PAN, JoiningDate, Blood, Designation, CourseAssained, EmergencyContactName, EmergencyNumber, Relationship, Email } = req.body;
 
     try {
-        if (!Fullname || !ContactNumber || !AadharNumber) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
+      
 
         // generate a password for employees as well
         const generatedPassword = generatePassword();
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(generatedPassword, saltRounds);
+        // const saltRounds = 10;
+
+        const hashedPassword = await argon2.hash(generatedPassword);
 
         const newEmployee = await employeeModel.create({
             Fullname,
@@ -32,9 +33,10 @@ const createEmployee = async (req, res) => {
             Password: hashedPassword,
             EmergencyContactName,
             EmergencyNumber,
-            Relationship,
+            Relationship
             // Note: employeeModel doesn't have Email/Password fields currently; store only if schema updated
         });
+
 
         // attempt to email credentials if transporter and Email provided
         if (Email && transporter) {
@@ -175,7 +177,7 @@ const profile = async (req, res) => {
 
 const updateprofile = async (req, res) => {
     try {
-console.log("👉 req.body:", req.body);   // log the incoming data
+        console.log("👉 req.body:", req.body);   // log the incoming data
         console.log("👉 req.params:", req.params);
 
 

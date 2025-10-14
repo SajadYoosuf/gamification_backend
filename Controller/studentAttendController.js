@@ -10,19 +10,20 @@ function convertToHours(timeStr) {
 
 const createAttend = async (req, res) => {
   try {
-    let { date, Checkin, Checkout, Breakin, Breakout, WorkingHours, Reason } = req.body;
+    let { date, Checkin, Fullname, Checkout, Breakin, Breakout, WorkingHours, Reason, review, rating } = req.body;
     const { userId } = req.params;
 
     const serverDate = moment().format("DD/MM/YYYY");
+    
     const clientDate = date || serverDate;
-
+ 
     if (!userId || userId === "undefined") {
       return res.status(400).json({ message: "Invalid user ID in URL." });
     }
 
     if (clientDate !== serverDate) {
       return res.status(400).json({
-        status: false,
+        status: false,  
         message: "You can only check in, check out, or apply leave for today.",
       });
     }
@@ -33,6 +34,9 @@ const createAttend = async (req, res) => {
     Breakin = Breakin || undefined;
     Breakout = Breakout || undefined;
     Reason = Reason || undefined;
+    review = review || undefined;
+    rating = rating || undefined;
+    
     
 
      
@@ -60,6 +64,9 @@ const createAttend = async (req, res) => {
         Breakout,
         WorkingHours: WorkingHours ?? null,
         Reason,
+        Fullname,
+        review,
+        rating, 
       });
 
       return res.json({ message: "Check-in created", data: newRecord });
@@ -80,33 +87,22 @@ const createAttend = async (req, res) => {
       openCard.Checkout = checkoutDate;
       if (WorkingHours) openCard.WorkingHours = WorkingHours;
       if (Reason) openCard.Reason = Reason;
+      if (review) openCard.review = review;
+      if (rating) openCard.rating = rating;
 
       await openCard.save();
       return res.json({ message: "Checkout updated", data: openCard });
     }
 
     // === CASE 3: Leave Only ===
+    if (Reason && !Checkin && !Checkout) {
+      const newLeave = await studentAttendModel.create({
+        userId,
+        date: clientDate,
+        status: "Leave",
+        Reason,
+      });
 
-
-
-
-    if (Reason) {
-      
-      const existing = await studentAttendModel.findOne({ userId, date: clientDate });
-      if (existing && existing.Checkin && Reason) {
-        return res.status(400).json({ status: false, message: "You have already checked in today." });
-      }
-
-
-
-      // const newLeave = await studentAttendModel.create({
-      //   userId,
-      //   date: clientDate,
-      //   status: "Leave",
-      //   Reason,
-      // });
-
-      
       return res.json({ message: "Leave recorded", data: newLeave });
     }
 
@@ -129,7 +125,8 @@ const createAttend = async (req, res) => {
 
 const getAttend = async (req, res) => {
   try {
-    const getattend = await studentAttendModel.find().populate('userId', 'Fullname Email ContactNumber');
+    const getattend = await studentAttendModel.find()
+      // .populate('userId', 'Fullname Email ContactNumber') 
     res.send(getattend);
   } catch (error) {
     console.log(error);
@@ -140,7 +137,9 @@ const getAttend = async (req, res) => {
 const getAttendId = async (req, res) => {
   try {
     const _id = req.params.id;
-    const attendId = await studentAttendModel.findById(_id).populate('userId', 'Fullname Email ContactNumber');
+    const attendId = await studentAttendModel.findById(_id)
+      // .populate('userId', 'Fullname Email ContactNumber') 
+
     if (attendId) {
       res.json(attendId);
     } else {
@@ -196,5 +195,76 @@ const getAttendanceReport = async (req, res) => {
   }
 };
 
+// Function to add/update review and rating for attendance record
+const updateReviewRating = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { review, rating } = req.body;
 
-module.exports = { createAttend, getAttend, getAttendId, getAttendByUserId, getAttendanceReport };
+    const attendanceRecord = await studentAttendModel.findById(id);
+    if (!attendanceRecord) {
+      return res.status(404).json({ status: false, message: 'Attendance record not found' });
+    }
+
+    // Update only the fields that are provided
+    if (review !== undefined) attendanceRecord.review = review;
+    if (rating !== undefined) attendanceRecord.rating = rating;
+
+    await attendanceRecord.save();
+
+    const updatedRecord = await studentAttendModel.findById(id).populate('userId', 'Fullname Email ContactNumber');
+    res.json({ 
+      status: true, 
+      message: 'Review and rating updated successfully', 
+      data: updatedRecord 
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ status: false, error: 'Internal Server Error' });
+  }
+};
+
+// Function to get attendance records with reviews and ratings
+const getAttendanceWithReviews = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    let query = {};
+
+    // Filter by userId if provided
+    if (userId) {
+      query.userId = userId;
+    }
+
+    // Only get records that have review or rating
+    query.$or = [
+      { review: { $exists: true, $ne: null, $ne: "" } },
+      { rating: { $exists: true, $ne: null } }
+    ];
+
+    const attendanceWithReviews = await studentAttendModel.find(query)
+      .populate('userId', 'Fullname Email ContactNumber')
+      .sort({ date: -1 });
+
+    res.json({
+      status: true,
+      count: attendanceWithReviews.length,
+      data: attendanceWithReviews
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ status: false, error: 'Internal Server Error' });
+  }
+};
+
+
+module.exports = { 
+  createAttend, 
+  getAttend, 
+  getAttendId, 
+  getAttendByUserId, 
+  getAttendanceReport, 
+  updateReviewRating, 
+  getAttendanceWithReviews 
+};

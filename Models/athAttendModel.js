@@ -13,13 +13,16 @@ const studentAttendSchema = new mongoose.Schema({
         enum: ["Present", "Late", "Leave"],
         required: true,
     },
+    Fullname: { type: String },
     Checkin: { type: Date },
     Checkout: { type: Date },
     Breakin:{ type: String },
     Breakout:{ type: String },
     WorkingHours: { type: String }, // store as "03:45:00"
     Reason: { type: String },
+    review: { type: String },
+    rating: { type: Number },
 });
 
-const studentAttendModel = mongoose.model('studentAttend', studentAttendSchema);
+const studentAttendModel = mongoose.model('studentAttendance', studentAttendSchema);
 module.exports = { studentAttendModel };

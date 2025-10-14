@@ -1,28 +1,35 @@
-
+const { argon2d } = require("argon2");
+const { employeeModel } = require("../Models/empModel");
 const bcrypt = require("bcrypt");
+const argon2 = require("argon2");
 const { employeeModel } = require("../Models/empModel");
 
 const employeeLogin = async (req, res) => {
     const { Email, Password } = req.body;
-
     try {
 
-        const employee = await employeeModel.findOne({ Email });
+        const user = await employeeModel.findOne({ Email });
 
-        if (!employee) {
+        console.log("singup pass : ",user.Password);
+
+        console.log(" user:", user); // Log the user object to see what is returned
+        console.log(" pass:", Password); // Log the email to verify it's being received correctly
+        
+        if (!user) {
             return res.status(401).json({
                 status: false,
-                message: "Invalid email or password"
+                message: "Invalid email or hhhhh"
             });
         }
 
 
+        const isPasswordValid = await argon2.verify(user.Password,Password);
         const isPasswordValid = await bcrypt.compare(Password, employee.Password);
 
         if (!isPasswordValid) {
             return res.status(401).json({
                 status: false,
-                message: "Invalid email or password"
+                message: "Invalid email or ppppp"
             });
         }
 

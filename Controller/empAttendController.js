@@ -7,7 +7,7 @@ function convertToHours(timeStr) {
   return hours + minutes / 60;
 }
 const createAttend = async (req, res) => {
-  const { date, Checkin, Checkout, WorkingHours,  Reason } = req.body;
+  const { date, Checkin, Checkout, WorkingHours,  Reason, Fullname } = req.body;
   const { empID } = req.params;
 
   try {
@@ -63,9 +63,10 @@ const createAttend = async (req, res) => {
         userId: empID,
         date: clientDate,
         status,
+        Fullname,
         Checkin: checkinDate,
         WorkingHours: WorkingHours ?? null,
-        Reason,
+        // Reason,
         
       });
 
@@ -109,6 +110,7 @@ if(checkinDate){
       const newLeave = await attendModel.create({
         userId: empID,
         date: clientDate,
+        Fullname,
         status: "Leave",
         Leavetype,
         From: moment(From, "DD/MM/YYYY").toDate(),
