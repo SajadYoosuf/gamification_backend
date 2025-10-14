@@ -1,7 +1,16 @@
 
 const mongoose = require('mongoose');
 
-const StudentSchema = new mongoose.Schema({
+
+
+    
+const feeSchema = new mongoose.Schema({
+    Fees: { type: String},
+    date: { type: Date},
+})
+
+
+const userSchema = new mongoose.Schema({
     Fullname:{ type: String, required: true},
     Guardian: { type: String, required: true},
     Address: { type: String, required: true },
@@ -23,7 +32,14 @@ const StudentSchema = new mongoose.Schema({
      EmergencyContactName: { type: String, required: true },
     EmergencyNumber: { type: String, required: true },
     Relationship: { type: String, required: true },
+    fee: { type: [feeSchema], default:[] }
 }, { timestamps: true });
-const StudentModel = mongoose.model('students', StudentSchema);
+
+
+
+
+
+
+const StudentModel = mongoose.model('User', userSchema);
 
 module.exports = { StudentModel };

@@ -2,7 +2,7 @@ const { argon2d } = require("argon2");
 const { employeeModel } = require("../Models/empModel");
 const bcrypt = require("bcrypt");
 const argon2 = require("argon2");
-const { employeeModel } = require("../Models/empModel");
+// const { employeeModel } = require("../Models/empModel");
 
 const employeeLogin = async (req, res) => {
     const { Email, Password } = req.body;
@@ -23,7 +23,7 @@ const employeeLogin = async (req, res) => {
         }
 
 
-        const isPasswordValid = await argon2.verify(user.Password,Password);
+        // const isPasswordValid = await argon2.verify(user.Password,Password);
         const isPasswordValid = await bcrypt.compare(Password, employee.Password);
 
         if (!isPasswordValid) {

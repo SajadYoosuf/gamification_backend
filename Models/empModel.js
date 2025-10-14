@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+const salarySchema = new mongoose.Schema({
+    Salary: { type: String },
+    datee: { type: String },
+})
+
 const employeeSchema = new mongoose.Schema({
     Fullname: { type: String, required: true },
     Address: { type: String, required: true },
@@ -20,6 +25,7 @@ const employeeSchema = new mongoose.Schema({
     EmergencyContactName: { type: String },
     EmergencyNumber: { type: String, required: true },
     Relationship: { type: String, required: true },
+    salary: { type: [salarySchema], default: [] }
 }, { timestamps: true });
 
 const employeeModel = mongoose.model('Employee', employeeSchema);

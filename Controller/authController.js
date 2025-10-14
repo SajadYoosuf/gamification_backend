@@ -6,7 +6,7 @@ const { transporter } = require("../Config/nodeMail.js");
 require('dotenv').config();
 
 const createUser = async (req, res) => {
-    const { Fullname, Guardian, Address, ContactNumber, GuardianNumber, DOB, Aadhar, PAN, BloodGroup, JoiningDate, Email, Course, EmergencyContactName, EmergencyNumber, Relationship } = req.body;
+    const { Fullname, Guardian, Address, ContactNumber, GuardianNumber, DOB, Aadhar, PAN, BloodGroup, JoiningDate, Email, Course, EmergencyContactName, EmergencyNumber, Relationship, fee } = req.body;
 
     try {
         let allowedCourses = ['MERN Stack', 'Python', 'Flutter', 'Digital Marketing'];
@@ -38,10 +38,11 @@ const createUser = async (req, res) => {
             JoiningDate,
             Course,
             Email,
-            Password: generatedPassword,
+            Password: hashedPassword,
             EmergencyContactName,
             EmergencyNumber,
             Relationship,
+            fee,
         });
 
         const mailOptions = {

@@ -3,15 +3,16 @@ const bcrypt = require("bcrypt");
 
 const authLogin = async (req, res) => {
   const { Email, Password } = req.body;
-
+console.log(Email,Password) 
   try {
     const user = await StudentModel.findOne({ Email });
-
-    if (!user) {
-      return res.status(401).json({ status: false, message: "Invalid email or" });
+    console.log(user)
+ 
+    if ( !user ) {
+      return res.status(401).json({ status: false, message: "Invalid email or Password " });
     }
-
-    const isPasswordValid = await bcrypt.compare(Password, user.Password);
+const isPasswordValid = await bcrypt.compare(Password, user.Password);
+   
 
     if (!isPasswordValid) {
       return res.status(401).json({ status: false, message: "Invalid  or password" });
