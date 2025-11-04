@@ -17,11 +17,7 @@ const userSchema = new mongoose.Schema({
     ContactNumber: { type: String, required: true },
     GuardianNumber: { type: String, required: true },
     DOB: { type: String, required: true },
-    // Category: {
-    //     type: String,
-    //     enum: ['Student','Employee'],
-    //     default: 'Student'
-    // },
+   
     Aadhar: { type: String, required: true },
     PAN: { type: String },
     BloodGroup: { type: String, required: true}, 

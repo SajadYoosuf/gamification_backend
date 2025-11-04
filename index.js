@@ -59,11 +59,11 @@ connection();
 const corsOptions = {
     origin: [
         'http://localhost:',
-        'http://localhost:3001', 
+        'http://localhost:35751', 
         'http://localhost:8080',
-        'http://localhost:8000',
-        'http://localhost:5173', // Vite default
-        'http://localhost:4200', // Angular default
+        'http://localhost:43113',
+        'http://localhost:38667', // Vite default
+        'http://localhost:40525', // Angular default
         'http://127.0.0.1:3000',
         'http://127.0.0.1:5173',
         'http://127.0.0.1:8080'

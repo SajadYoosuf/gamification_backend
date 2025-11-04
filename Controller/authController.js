@@ -9,14 +9,15 @@ const createUser = async (req, res) => {
     const { Fullname, Guardian, Address, ContactNumber, GuardianNumber, DOB, Aadhar, PAN, BloodGroup, JoiningDate, Email, Course, EmergencyContactName, EmergencyNumber, Relationship, fee } = req.body;
 
     try {
-        let allowedCourses = ['MERN Stack', 'Python', 'Flutter', 'Digital Marketing'];
+        let allowedCourses = [];
+
         try {
-            const dbCourses = await StudentModel.find().select('CourseName -_id').lean();
-            const dbCourseNames = (dbCourses || []).map(c => c.CourseName).filter(Boolean);
-            if (dbCourseNames.length > 0) allowedCourses = dbCourseNames;
+            const dbCourses = await courseModel.find().select('CourseName -_id').lean();
+            allowedCourses = (dbCourses || []).map(c => c.CourseName.trim()).filter(Boolean);
         } catch (e) {
-            console.warn('Could not read courses from DB, using fallback list', e.message);
+            console.warn('Could not read courses from DB, allowing all', e.message);
         }
+
 
         if (!allowedCourses.includes(Course)) return res.status(400).json({ error: 'Invalid course selected' });
         if (!Email) return res.status(400).json({ error: 'Email is required' });

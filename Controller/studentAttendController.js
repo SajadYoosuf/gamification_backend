@@ -1,34 +1,42 @@
 const moment = require("moment-timezone");
 const { studentAttendModel } = require("../Models/athAttendModel");
 
-// Helper to convert "HH:mm" string to float hours
-function convertToHours(timeStr) {
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  return hours + minutes / 60;
-}
-
-
 const createAttend = async (req, res) => {
   try {
-    let { date, Checkin, Fullname, Checkout, Breakin, Breakout, WorkingHours, Reason, review, rating } = req.body;
+    let {
+      date,
+      Checkin,
+      Fullname,
+      Checkout,
+      Breakin,
+      Breakout,
+      WorkingHours,
+      Reason,
+      review,
+      rating,
+    } = req.body;
+
     const { userId } = req.params;
 
-    const serverDate = moment().format("DD/MM/YYYY");
-    
-    const clientDate = date || serverDate;
- 
+    // === Always use IST timezone ===
+    const serverDate = moment().tz("Asia/Kolkata").format("YYYY-MM-DD");
+    const clientDate = date
+      ? moment(date).tz("Asia/Kolkata").format("YYYY-MM-DD")
+      : serverDate;
+
     if (!userId || userId === "undefined") {
       return res.status(400).json({ message: "Invalid user ID in URL." });
     }
 
+    // === Restrict to today's date only ===
     if (clientDate !== serverDate) {
       return res.status(400).json({
-        status: false,  
+        status: false,
         message: "You can only check in, check out, or apply leave for today.",
       });
     }
 
-    // 🔑 Normalize empty strings → undefined
+    // === Normalize empty strings ===
     Checkin = Checkin || undefined;
     Checkout = Checkout || undefined;
     Breakin = Breakin || undefined;
@@ -36,19 +44,14 @@ const createAttend = async (req, res) => {
     Reason = Reason || undefined;
     review = review || undefined;
     rating = rating || undefined;
-    
-    
 
-     
-
-    // === CASE 1: Checkin ===
+    // === CASE 1: Check-in ===
     if (Checkin) {
-      const checkinDate = new Date();
+      const checkinDate = moment().tz("Asia/Kolkata").toDate(); // store IST
 
       let status = "Present";
-      const tenAM = new Date(checkinDate);
-      tenAM.setHours(10, 10, 0, 0);
-      status = checkinDate < tenAM ? "Present" : "Late";
+      const tenAM = moment().tz("Asia/Kolkata").set({ hour: 10, minute: 10, second: 0, millisecond: 0 });
+      status = moment(checkinDate).isBefore(tenAM) ? "Present" : "Late";
 
       const existing = await studentAttendModel.findOne({ userId, date: clientDate });
       if (existing && existing.Checkin) {
@@ -66,7 +69,7 @@ const createAttend = async (req, res) => {
         Reason,
         Fullname,
         review,
-        rating, 
+        rating,
       });
 
       return res.json({ message: "Check-in created", data: newRecord });
@@ -74,9 +77,12 @@ const createAttend = async (req, res) => {
 
     // === CASE 2: Checkout ===
     if (Checkout) {
-      const checkoutDate = new Date();
+      const checkoutDate = moment().tz("Asia/Kolkata").toDate(); // store IST
 
-      const openCard = await studentAttendModel.findOne({ userId, date: clientDate }).sort({ createdAt: -1 });
+      const openCard = await studentAttendModel
+        .findOne({ userId, date: clientDate })
+        .sort({ createdAt: -1 });
+
       if (!openCard || openCard.Checkout) {
         return res.status(400).json({
           status: false,
@@ -106,11 +112,12 @@ const createAttend = async (req, res) => {
       return res.json({ message: "Leave recorded", data: newLeave });
     }
 
-    return res.status(400).json({ status: false, message: "fdsfdf." });
-
+    return res.status(400).json({ status: false, message: "Invalid attendance operation." });
   } catch (error) {
     console.error("Attendance error:", error);
-    return res.status(500).json({ status: false, message: "Something went wrong", error: error.message });
+    return res
+      .status(500)
+      .json({ status: false, message: "Something went wrong", error: error.message });
   }
 };
 

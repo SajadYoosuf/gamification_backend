@@ -7,20 +7,23 @@ function convertToHours(timeStr) {
   return hours + minutes / 60;
 }
 const createAttend = async (req, res) => {
-  const { date, Checkin, Checkout, WorkingHours,  Reason, Fullname } = req.body;
+  const { date, Checkin, Checkout, WorkingHours, Reason, Fullname } = req.body;
   const { empID } = req.params;
 
   try {
-    const serverDate = moment().format("DD/MM/YYYY");
-    const clientDate = date || serverDate;
+    // Convert all times to IST (Asia/Kolkata)
+    const serverDate = moment().tz("Asia/Kolkata").format("YYYY-MM-DD");
+    const clientDate = date
+      ? moment(date, ["YYYY-MM-DD", "DD/MM/YYYY"])
+          .tz("Asia/Kolkata")
+          .format("YYYY-MM-DD")
+      : serverDate;
 
     if (!empID || empID === "undefined") {
       return res.status(400).json({ message: "Invalid user ID in URL." });
     }
 
-
-
-
+    // Date validation (must be today's date)
     if (clientDate !== serverDate) {
       return res.status(400).json({
         status: false,
@@ -28,24 +31,36 @@ const createAttend = async (req, res) => {
       });
     }
 
-    const [day, month, year] = clientDate.split("/").map(Number);
-
+    // ✅ Parse incoming Checkin/Checkout values safely
     const checkinDate = Checkin
-      ? new Date(year, month - 1, day, ...Checkin.split(":").map(Number))
+      ? moment(Checkin).tz("Asia/Kolkata").toDate()
       : null;
 
     const checkoutDate = Checkout
-      ? new Date(year, month - 1, day, ...Checkout.split(":").map(Number))
+      ? moment(Checkout).tz("Asia/Kolkata").toDate()
       : null;
 
-    let status = "Absent";
-    if (checkinDate) {
-      const tenAM = new Date(checkinDate);
-      tenAM.setHours(10, 10, 0, 0);
-      status = checkinDate < tenAM ? "Present" : "Late";
+    // Validate parsed dates
+    if (checkinDate && isNaN(checkinDate.getTime())) {
+      return res.status(400).json({ message: "Invalid Checkin time format." });
+    }
+    if (checkoutDate && isNaN(checkoutDate.getTime())) {
+      return res.status(400).json({ message: "Invalid Checkout time format." });
     }
 
-    // === CASE 1: Checkin ===
+    // Determine employee status
+    let status = "Absent";
+    if (checkinDate) {
+      const tenAM = moment().tz("Asia/Kolkata").set({
+        hour: 10,
+        minute: 10,
+        second: 0,
+        millisecond: 0,
+      });
+      status = moment(checkinDate).isBefore(tenAM) ? "Present" : "Late";
+    }
+
+    // === CASE 1: Check-in ===
     if (checkinDate) {
       const existing = await attendModel.findOne({
         userId: empID,
@@ -66,22 +81,16 @@ const createAttend = async (req, res) => {
         Fullname,
         Checkin: checkinDate,
         WorkingHours: WorkingHours ?? null,
-        // Reason,
-        
       });
 
       return res.json({ message: "Check-in created", data: newRecord });
     }
 
-
-
-
-    // === CASE 2: Checkout ===
+    // === CASE 2: Check-out ===
     if (checkoutDate) {
-      const openCard = await attendModel.findOne({
-        userId: empID,
-        date: clientDate,
-      }).sort({ createdAt: -1 });
+      const openCard = await attendModel
+        .findOne({ userId: empID, date: clientDate })
+        .sort({ createdAt: -1 });
 
       if (!openCard || openCard.Checkout) {
         return res.status(400).json({
@@ -91,64 +100,37 @@ const createAttend = async (req, res) => {
       }
 
       openCard.Checkout = checkoutDate;
-
       if (WorkingHours) openCard.WorkingHours = WorkingHours;
       if (Reason) openCard.Reason = Reason;
-      
 
       await openCard.save();
 
       return res.json({ message: "Checkout updated", data: openCard });
     }
 
-if(checkinDate){
-  return res.json({ message: "You cannot take leave ,tou are already checked in"})
-}
+    if (checkinDate) {
+      return res.json({
+        message: "You cannot take leave, you are already checked in.",
+      });
+    }
 
-    // === CASE 3: Leave Only ===
+    // === CASE 3: Leave ===
     if (!checkinDate && !checkoutDate && Reason) {
       const newLeave = await attendModel.create({
         userId: empID,
         date: clientDate,
         Fullname,
         status: "Leave",
-        Leavetype,
-        From: moment(From, "DD/MM/YYYY").toDate(),
-        To: moment(To, "DD/MM/YYYY").toDate(),
         Reason,
       });
 
       return res.json({ message: "Leave recorded", data: newLeave });
     }
 
-
-    // === CASE 4: Add Rating & Review only ===
-    if (!checkinDate && !checkoutDate && (Rating || Review)) {
-      const existing = await attendModel.findOne({
-        userId: empID,
-        date: clientDate
-      }).sort({ createdAt: -1 });
-
-      if (!existing) {
-        return res.status(404).json({ message: "No attendance record found for review." });
-      }
-
-      if (Rating) existing.Rating = Rating;
-      if (Review) existing.Review = Review;
-
-      await existing.save();
-      return res.json({ message: "Review submitted", data: existing });
-    }
-
-
-
     return res.status(400).json({
       status: false,
-      message: "fsjofijds",
+      message: "Invalid attendance request.",
     });
-
-
-
   } catch (error) {
     console.error("Attendance error:", error);
     return res.status(500).json({
@@ -158,6 +140,7 @@ if(checkinDate){
     });
   }
 };
+
 
 
 

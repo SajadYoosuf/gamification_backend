@@ -26,12 +26,7 @@ const empAttendSchema = new mongoose.Schema({
     WorkingHours: { type: String }, // store as "03:45:00"
     Leavetype: { type: String },
     Reason: { type: String },
-    // Rating: {
-    //     type: Number,
-    //     min: 1,
-    //     max: 5
-    // },
-    // Review: { type: String }
+  
 })
 const attendModel = mongoose.model('employeeAttendance', empAttendSchema);
 module.exports = { attendModel };
