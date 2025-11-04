@@ -59,7 +59,7 @@ connection();
 const corsOptions = {
     origin: [
         'http://localhost:',
-        'http://localhost:35751', 
+        'https://deluxe-squirrel-325d84.netlify.app/', 
         'http://localhost:8080',
         'http://localhost:43113',
         'http://localhost:38667', // Vite default
