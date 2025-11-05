@@ -7,13 +7,13 @@ const salarySchema = new mongoose.Schema({
 
 const employeeSchema = new mongoose.Schema({
     Fullname: { type: String, required: true },
-    Address: { type: String, required: true },
+    Address: { type: String, required: false },
     
     ContactNumber: { type: String, required: true },
-    AadharNumber: { type: String, required: true },
-    PAN: { type: String, required: true },
+    AadharNumber: { type: String, required: false },
+    PAN: { type: String, required: false },
     JoiningDate: { type: String, required: true },
-    Blood: { type: String, required: true },
+    Blood: { type: String, required: false },
     Designation: {
         type: [String],
         enum: ['Developer & Mentor',
@@ -27,8 +27,8 @@ const employeeSchema = new mongoose.Schema({
     Email: { type: String, required: true },
     Password: { type: String, required: true },
     EmergencyContactName: { type: String },
-    EmergencyNumber: { type: String, required: true },
-    Relationship: { type: String, required: true },
+    EmergencyNumber: { type: String, required: false },
+    Relationship: { type: String, required: false },
     salary: { type: [salarySchema], default: [] }
 }, { timestamps: true });
 

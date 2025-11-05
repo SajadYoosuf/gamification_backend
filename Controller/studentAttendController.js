@@ -17,7 +17,8 @@ const createAttend = async (req, res) => {
     } = req.body;
 
     const { userId } = req.params;
-
+console.log("userId:", userId);
+console.log("Request body:", req.body);
     // === Always use IST timezone ===
     const serverDate = moment().tz("Asia/Kolkata").format("YYYY-MM-DD");
     const clientDate = date
@@ -25,11 +26,13 @@ const createAttend = async (req, res) => {
       : serverDate;
 
     if (!userId || userId === "undefined") {
+      console.log("Invalid userId:", userId);
       return res.status(400).json({ message: "Invalid user ID in URL." });
     }
 
     // === Restrict to today's date only ===
     if (clientDate !== serverDate) {
+      console.log("Date mismatch - clientDate:", clientDate, "serverDate:", serverDate);
       return res.status(400).json({
         status: false,
         message: "You can only check in, check out, or apply leave for today.",
@@ -47,6 +50,7 @@ const createAttend = async (req, res) => {
 
     // === CASE 1: Check-in ===
     if (Checkin) {
+      console.log("Processing check-in for userId:", userId);
       const checkinDate = moment().tz("Asia/Kolkata").toDate(); // store IST
 
       let status = "Present";
@@ -55,6 +59,7 @@ const createAttend = async (req, res) => {
 
       const existing = await studentAttendModel.findOne({ userId, date: clientDate });
       if (existing && existing.Checkin) {
+        console.log("User has already checked in today:", existing);
         return res.status(400).json({ status: false, message: "You have already checked in today." });
       }
 
@@ -71,7 +76,7 @@ const createAttend = async (req, res) => {
         review,
         rating,
       });
-
+console.log("New check-in record created:", newRecord);
       return res.json({ message: "Check-in created", data: newRecord });
     }
 

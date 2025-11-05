@@ -23,9 +23,9 @@ const employeeLogin = async (req, res) => {
         }
 
 
-        // const isPasswordValid = await argon2.verify(user.Password,Password);
-        const isPasswordValid = await bcrypt.compare(Password, employee.Password);
-
+        const isPasswordValid = await argon2.verify(user.Password,Password);
+        // const isPasswordValid = await bcrypt.compare(Password, user.Password);
+       console.log(isPasswordValid)
         if (!isPasswordValid) {
             return res.status(401).json({
                 status: false,
@@ -38,11 +38,11 @@ const employeeLogin = async (req, res) => {
             status: true,
             message: "Login successful",
             data: {
-                id: employee._id,
-                FullName : employee.Fullname,
-                Email: employee.Email,
-                ContactNumber: employee.ContactNumber,
-                Address: employee.Address
+                id: user._id,
+                FullName : user.Fullname,
+                Email: user.Email,
+                ContactNumber: user.ContactNumber,
+                Address: user.Address
             }
         });
 

@@ -18,16 +18,16 @@ const userSchema = new mongoose.Schema({
     GuardianNumber: { type: String, required: true },
     DOB: { type: String, required: true },
    
-    Aadhar: { type: String, required: true },
+    Aadhar: { type: String, required: false },
     PAN: { type: String },
-    BloodGroup: { type: String, required: true}, 
+    BloodGroup: { type: String, required: false}, 
     JoiningDate: { type: Date, required: true },
     Email: { type: String, required: true, unique: true },
     Course: { type: String, required: true},
      Password: { type: String },
-     EmergencyContactName: { type: String, required: true },
-    EmergencyNumber: { type: String, required: true },
-    Relationship: { type: String, required: true },
+     EmergencyContactName: { type: String, required: false },
+    EmergencyNumber: { type: String, required: false },
+    Relationship: { type: String, required: false },
     fee: { type: [feeSchema], default:[] }
 }, { timestamps: true });
 
