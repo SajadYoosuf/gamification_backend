@@ -7,19 +7,19 @@ require('dotenv').config();
 
 const createUser = async (req, res) => {
     const { Fullname, Guardian, Address, ContactNumber, GuardianNumber, DOB, Aadhar, PAN, BloodGroup, JoiningDate, Email, Course, EmergencyContactName, EmergencyNumber, Relationship, fee } = req.body;
-
+    console.log('Received createUser request with body:', req.body);
     try {
         let allowedCourses = [];
 
         try {
             const dbCourses = await courseModel.find().select('CourseName -_id').lean();
             allowedCourses = (dbCourses || []).map(c => c.CourseName.trim()).filter(Boolean);
+            console.log('Allowed courses from DB:', allowedCourses);
         } catch (e) {
             console.warn('Could not read courses from DB, allowing all', e.message);
         }
+        console.log('Creating user with course:', Course);
 
-
-        if (!allowedCourses.includes(Course)) return res.status(400).json({ error: 'Invalid course selected' });
         if (!Email) return res.status(400).json({ error: 'Email is required' });
 
         const generatedPassword = generatePassword();
@@ -39,7 +39,7 @@ const createUser = async (req, res) => {
             JoiningDate,
             Course,
             Email,
-            Password: hashedPassword,
+            Password: generatedPassword,
             EmergencyContactName,
             EmergencyNumber,
             Relationship,

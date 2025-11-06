@@ -164,20 +164,42 @@ const getAttendId = async (req, res) => {
 };
 
 // New function to get attendance by user ID
+
 const getAttendByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const attendanceRecords = await studentAttendModel.find({ userId }).populate('userId', 'Fullname Email ContactNumber');
-    if (attendanceRecords.length > 0) {
-      res.json(attendanceRecords);
-    } else {
-      res.status(404).json({ message: 'No attendance records found for this user' });
+
+    // Ensure we always use India timezone (IST)
+    const today = moment().tz("Asia/Kolkata").format("YYYY-MM-DD");
+
+    const attendanceRecord = await studentAttendModel
+      .findOne({ userId, date: today })
+      .populate("userId", "Fullname Email ContactNumber");
+
+    if (!attendanceRecord) {
+      return res.status(404).json({
+        status: false,
+        message: "No attendance recorded for today.",
+        date: today,
+      });
     }
+
+    return res.json({
+      status: true,
+      message: "Today's attendance fetched successfully",
+      date: today,
+      data: attendanceRecord,
+    });
+
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    return res.status(500).json({ 
+      status: false, 
+      error: "Internal Server Error" 
+    });
   }
 };
+
 
 // New function to get comprehensive attendance report
 const getAttendanceReport = async (req, res) => {
