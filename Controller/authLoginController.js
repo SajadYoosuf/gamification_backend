@@ -1,5 +1,5 @@
 const { StudentModel } = require("../Models/authModel");
-const bcrypt = require("bcrypt");
+const argon2 = require("argon2");
 
 const authLogin = async (req, res) => {
   const { Email, Password } = req.body;
@@ -12,7 +12,7 @@ console.log(Email,Password)
       console.log("User not found with email:", Email);
       return res.status(401).json({ status: false, message: "User not found with email" });
     }
-const isPasswordValid = await bcrypt.compare(Password, user.Password);
+const isPasswordValid = await argon2.verify(Password, user.Password);
    
 
     if (!isPasswordValid) {
