@@ -9,15 +9,17 @@ console.log(Email,Password)
     console.log(user)
  
     if ( !user ) {
-      return res.status(401).json({ status: false, message: "Invalid email or Password " });
+      console.log("User not found with email:", Email);
+      return res.status(401).json({ status: false, message: "User not found with email" });
     }
 const isPasswordValid = await bcrypt.compare(Password, user.Password);
    
 
     if (!isPasswordValid) {
-      return res.status(401).json({ status: false, message: "Invalid  or password" });
+      console.log("Invalid password attempt for user:", Email);
+      return res.status(401).json({ status: false, message: "Invalid password attempt for user" });
     }
-
+       console.log("Login successful for user:", Email);
     return res.status(200).json({
       status: true,
       message: "Login successful",
